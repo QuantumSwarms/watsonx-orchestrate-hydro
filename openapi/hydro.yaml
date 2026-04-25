@@ -1,0 +1,64 @@
+openapi: 3.1.0
+info:
+  title: Hydro — Hydrological Intelligence Agent
+  version: 0.1.0
+  description: |
+    Public OpenAPI reference for the Hydro agent.
+    All responses include an `X-EpochCore-Watermark` header (see quantum-watermark-sbom).
+  license:
+    name: Apache-2.0
+  contact:
+    name: EpochCore
+    url: https://epochcoreqcs.com
+servers:
+  - url: https://api.epochcoreqcs.com/v1/hydro
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    BasinLevel:
+      type: object
+      required: [basin, level_m, timestamp]
+      properties:
+        basin: { type: string }
+        level_m: { type: number }
+        timestamp: { type: string, format: date-time }
+        dkap_address: { type: string }
+    FloodRisk:
+      type: object
+      required: [basin, horizon_h, score]
+      properties:
+        basin: { type: string }
+        horizon_h: { type: integer }
+        score: { type: number, minimum: 0, maximum: 1 }
+        factors: { type: array, items: { type: string } }
+security:
+  - bearer: []
+paths:
+  /basin/{basin}/level:
+    get:
+      operationId: get_basin_level
+      summary: Current basin level
+      parameters:
+        - { name: basin, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BasinLevel" }
+  /basin/{basin}/flood-risk:
+    get:
+      operationId: score_flood_risk
+      summary: Flood risk score
+      parameters:
+        - { name: basin, in: path, required: true, schema: { type: string } }
+        - { name: horizon_h, in: query, required: true, schema: { type: integer } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FloodRisk" }
