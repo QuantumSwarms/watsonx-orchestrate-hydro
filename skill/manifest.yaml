@@ -1,0 +1,39 @@
+# watsonx Orchestrate skill manifest — Hydro
+# Reference manifest only. Normative values resolved at runtime.
+apiVersion: orchestrate.watsonx.ibm.com/v1
+kind: Skill
+metadata:
+  name: hydro
+  displayName: "Hydro — Hydrological Intelligence Agent"
+  version: 0.1.0
+  owner: EpochCore LLC
+  tags: [hydrology, flood-risk, epochcore, quantumswarms]
+spec:
+  description: >
+    Real-time hydrological intelligence via a zero-latency single-API surface.
+    Outputs are quantum-watermarked and D-KaP-anchored.
+  api:
+    type: openapi
+    source: openapi/hydro.yaml
+    baseUrl: https://api.epochcoreqcs.com/v1/hydro
+    auth:
+      type: bearer
+      secretRef: EPOCHCORE_API_KEY
+  capabilities:
+    - id: get_basin_level
+      naturalLanguage:
+        - "what is the current level of the {basin} basin?"
+        - "basin level {basin}"
+    - id: get_precip_forecast
+      naturalLanguage:
+        - "precip forecast for {geohash} next {horizon} hours"
+    - id: score_flood_risk
+      naturalLanguage:
+        - "flood risk for {basin} in {horizon} hours"
+    - id: summarize_event
+      naturalLanguage:
+        - "summarize event {event_id}"
+  policies:
+    watermark: required
+    dkapAnchor: required
+    maxLatencyMs: 50
